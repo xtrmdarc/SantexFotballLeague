@@ -1,7 +1,7 @@
 class CompetitionsController < ApplicationController
   def import
-    p StoreLeagueDataService.save params[:league_code]
+    process = StoreLeagueDataService.save params[:league_code]
 
-    render json: {message: 'imported successfully'}, code: 202
+    render json: process[:response], code: process[:status]
   end
 end

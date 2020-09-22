@@ -14,43 +14,43 @@ class StoreLeagueDataService
   ]
 
   def self.save(league_code)
-    data = JSON.parse FootballDataApi.teams_by_league(league_code)
-    dbComp = Competition.create name: data['competition']['name'], 
-            code: data['competition']['code'],
-            areaName: data['competition']['area']['name']
+    begin
+      data = JSON.parse FootballDataApi.teams_by_league(league_code)
+      return {'response': {'message': 'Not found'}, 'status': 404 } if data['error'] == 404
 
-    return {'error' => 'comp already exists'} unless dbComp.valid?
+      dbComp = self.store_competition data
+      return {'response': {'message': 'League already imported'}, 'status': 409 } unless dbComp.valid?
 
-    call_count = 0
-    key_index = 0
-    data['teams'].each do |team|
+      call_count = 0
+      key_index = 0
+      data['teams'].each do |team|
+        if call_count >= 10
+          key_index = self.refresh_key(key_index)
+          call_count = 0
+        end
+        use_key = @@keychain[key_index]
 
-      if call_count >= 10
-        key_index = self.refresh_key(key_index)
-        call_count = 0
+        team_data = JSON.parse FootballDataApi.players_by_team team['id'], use_key
+        call_count += 1
+
+        dbTeam = Team.find_by(tla: team['tla'])
+
+        if dbTeam
+          dbComp.competition_teams.create(team: dbTeam)
+          next
+        end
+
+        dbTeam = self.store_team team
+        dbComp.competition_teams.create(team: dbTeam)
+
+        players = team_data['squad']
+        players.each do |player|
+          self.store_player player, dbTeam.id
+        end
       end
-      use_key = @@keychain[key_index]
-
-      team_data = JSON.parse FootballDataApi.players_by_team team['id'], use_key
-      call_count += 1
-
-      dbTeam = Team.create name: team['name'], 
-                tla: team['tla'],
-                shortName: team['shortName'],
-                areaName: team['area']['name'],
-                email: team['email']
-                
-      dbComp.competition_teams.create(team: dbTeam)
-
-      players = team_data['squad']
-      players.each do |player|
-        Player.create name: player['name'],
-          position: player['position'],
-          dateOfBirth: player['dateOfBirth'],
-          countryOfBirth: player['countryOfBirth'],
-          nationality: player['nationality'],
-          team_id: dbTeam.id
-      end
+      return {'response': {'message': 'Successfully imported'}, 'status': 201 }
+    rescue StandardError => e
+      return {'response': {'message': 'Server Error'}, 'status': 504 }
     end
   end
 
@@ -58,5 +58,28 @@ class StoreLeagueDataService
 
   def self.refresh_key(key_index)
     key_index + 1 % @@keychain.length
+  end
+
+  def self.store_competition(data)
+    Competition.create name: data['competition']['name'], 
+      code: data['competition']['code'],
+      areaName: data['competition']['area']['name']
+  end
+
+  def self.store_team(team)
+    Team.create name: team['name'], 
+      tla: team['tla'],
+      shortName: team['shortName'],
+      areaName: team['area']['name'],
+      email: team['email']
+  end
+
+  def self.store_player(player, team_id)
+    Player.create name: player['name'],
+      position: player['position'],
+      dateOfBirth: player['dateOfBirth'],
+      countryOfBirth: player['countryOfBirth'],
+      nationality: player['nationality'],
+      team_id: team_id
   end
 end
