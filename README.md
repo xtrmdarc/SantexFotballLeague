@@ -2,7 +2,7 @@
 
 ## Descripción
 
-El proyecto expone 2 recursos api para importar ligas desde una API externa llamada https://football-data.org y para contar el número total de jugadores en una liga.
+El proyecto expone 2 recursos api para importar ligas desde una API externa llamada https://www.football-data.org/ y para contar el número total de jugadores en una liga.
 
 ## Insalación y despliegue
 
