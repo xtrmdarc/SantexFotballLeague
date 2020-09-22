@@ -30,7 +30,9 @@ Para desplegar el proyecto se deberá:
   - Recurso: `/import-league/{league_code}`
   Este servicio importa los datos de la competición, los equipos participantes y 
   los jugadores de dichos equipos desde un API externa a la base de datos local.
+    - Ejemplo: `http://localhost:3000/import-league/CL`
 
   - Recurso: `/total-players/{league_code}`
   Este servicio retorna en formato JSON la cantidad total de jugadores participantes
   en la competición ingresada como parámetro.
+    - Ejemplo: `http://localhost:3000/total-players/CL`
