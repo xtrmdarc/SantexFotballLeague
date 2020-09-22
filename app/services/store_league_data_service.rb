@@ -43,18 +43,19 @@ class StoreLeagueDataService
         dbComp.competition_teams.create(team: dbTeam)
 
         players = team_data['squad']
+        players_to_insert = []
         players.each do |player|
-          self.store_player player, dbTeam.id
+          players_to_insert.push self.new_player player, dbTeam.id
         end
+        Player.import players_to_insert, on_duplicate_key_ignore: true
       end
       return self.craft_response 'Successfully imported', 201
-
-    rescue SocketError => e
-      return self.craft_response 'Server Error', 504
     rescue RestClient::Forbidden => e
       return self.craft_response 'Not found in free tier', 403
     rescue RestClient::NotFound => e
       return self.craft_response 'Not found', 404
+    rescue StandardError => e
+      return self.craft_response 'Server Error', 504
     end
   end
 
@@ -79,6 +80,15 @@ class StoreLeagueDataService
   end
 
   def self.store_player(player, team_id)
+    Player.create name: player['name'],
+      position: player['position'],
+      dateOfBirth: player['dateOfBirth'],
+      countryOfBirth: player['countryOfBirth'],
+      nationality: player['nationality'],
+      team_id: team_id
+  end
+
+  def self.new_player(player, team_id)
     Player.create name: player['name'],
       position: player['position'],
       dateOfBirth: player['dateOfBirth'],
