@@ -1,24 +1,38 @@
-# README
+# Football Legue Santex Api
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Descripción
 
-Things you may want to cover:
+El proyecto expone 2 recursos api para importar ligas desde una API externa llamada https://www.football-data.org/ y para contar el número total de jugadores en una liga.
 
-* Ruby version
+## Insalación y despliegue
 
-* System dependencies
+Para desplegar el proyecto se deberá:
+- Si se instala desde un archivo ZIP
+  - Descomprimir el archivo
+  - Ingresar a la ruta raíz del proyecto a través de una ventana de comandos
+  - Ejecutar el comando `bundle install`
+  - Ejecutar el comando `rails server`. El servidor empezará a escuchar en el puerto
+  3000 por defecto.
+  - Ingresar a un navegador y utilizar uno de los recursos que expone el servicio API
 
-* Configuration
+- Si se obtiene desde el respositorio en Github
+  - En una ventana de comandos ejecutar `git clone https://github.com/xtrmdarc/SantexFotballLeague.git`
+  - Ingresar a la ruta raíz del proyecto a través de una ventana de comandos
+  - Ejecutar el comando `bundle install`
+  - Ejecutar el comando `rails server`. El servidor empezará a escuchar en el puerto
+  3000 por defecto.
+  - Ingresar a un navegador y utilizar uno de los recursos que expone el servicio API
 
-* Database creation
+## Recursos API
 
-* Database initialization
+- Endpoint: `http://localhost:3000/`
 
-* How to run the test suite
+  - Recurso: `/import-league/{league_code}`
+  Este servicio importa los datos de la competición, los equipos participantes y 
+  los jugadores de dichos equipos desde un API externa a la base de datos local.
+    - Ejemplo: `http://localhost:3000/import-league/CL`
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+  - Recurso: `/total-players/{league_code}`
+  Este servicio retorna en formato JSON la cantidad total de jugadores participantes
+  en la competición ingresada como parámetro.
+    - Ejemplo: `http://localhost:3000/total-players/CL`
