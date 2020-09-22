@@ -11,6 +11,8 @@ Para desplegar el proyecto se deberá:
   - Descomprimir el archivo
   - Ingresar a la ruta raíz del proyecto a través de una ventana de comandos
   - Ejecutar el comando `bundle install`
+  - Ejecutar el comando `yarn install`
+  - Ejecutar el comando `rails db:migrate` para crear la base de datos
   - Ejecutar el comando `rails server`. El servidor empezará a escuchar en el puerto
   3000 por defecto.
   - Ingresar a un navegador y utilizar uno de los recursos que expone el servicio API
@@ -19,6 +21,8 @@ Para desplegar el proyecto se deberá:
   - En una ventana de comandos ejecutar `git clone https://github.com/xtrmdarc/SantexFotballLeague.git`
   - Ingresar a la ruta raíz del proyecto a través de una ventana de comandos
   - Ejecutar el comando `bundle install`
+  - Ejecutar el comando `yarn install`
+  - Ejecutar el comando `rails db:migrate` para crear la base de datos
   - Ejecutar el comando `rails server`. El servidor empezará a escuchar en el puerto
   3000 por defecto.
   - Ingresar a un navegador y utilizar uno de los recursos que expone el servicio API
