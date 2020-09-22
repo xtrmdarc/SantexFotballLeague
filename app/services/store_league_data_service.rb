@@ -16,10 +16,9 @@ class StoreLeagueDataService
   def self.save(league_code)
     begin
       data = JSON.parse FootballDataApi.teams_by_league(league_code)
-      return {'response': {'message': 'Not found'}, 'status': 404 } if data['error'] == 404
 
       dbComp = self.store_competition data
-      return {'response': {'message': 'League already imported'}, 'status': 409 } unless dbComp.valid?
+      return self.craft_response 'League already imported', 409 unless dbComp.valid?
 
       call_count = 0
       key_index = 0
@@ -33,7 +32,7 @@ class StoreLeagueDataService
         team_data = JSON.parse FootballDataApi.players_by_team team['id'], use_key
         call_count += 1
 
-        dbTeam = Team.find_by(tla: team['tla'])
+        dbTeam = Team.find_by(name: team['name'])
 
         if dbTeam
           dbComp.competition_teams.create(team: dbTeam)
@@ -48,9 +47,14 @@ class StoreLeagueDataService
           self.store_player player, dbTeam.id
         end
       end
-      return {'response': {'message': 'Successfully imported'}, 'status': 201 }
-    rescue StandardError => e
-      return {'response': {'message': 'Server Error'}, 'status': 504 }
+      return self.craft_response 'Successfully imported', 201
+
+    rescue SocketError => e
+      return self.craft_response 'Server Error', 504
+    rescue RestClient::Forbidden => e
+      return self.craft_response 'Not found in free tier', 403
+    rescue RestClient::NotFound => e
+      return self.craft_response 'Not found', 404
     end
   end
 
@@ -81,5 +85,14 @@ class StoreLeagueDataService
       countryOfBirth: player['countryOfBirth'],
       nationality: player['nationality'],
       team_id: team_id
+  end
+  
+  def self.craft_response(message, status)
+    {
+      response: {
+        message: message
+      },
+      status: status
+    }
   end
 end
